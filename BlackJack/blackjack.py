@@ -266,7 +266,7 @@ def main() :
     display_instructions();
     num_players = get_num_players();
     players = create_players(num_players);
-    dealer = people.Dealer(Deck());
+    dealer = people.Dealer(Deck(6));
     players.append(dealer);
     
     replay_choice = 'y';
