@@ -43,21 +43,22 @@ def create_players(num) :
     return players_list;
     
 def deal(dealer, players) :
-    for player in players : 
-        if player.name != 'Jim' :
-            dealer.deal_card(player);
-        
+    for player in players[:-1] : 
+        if not player.check_broke() : dealer.deal_card(player);
+    dealer.deal_card(players[-1]); # dealer deals card to dealer, too
+    
 def place_bets(players) :
     print('Now, each of you must place your bets.\n');
     bets = [];
-    for i in range(0,len(players)-1) : # doesn't reach dealer
-        bet = input(f'Bet for {players[i].name}: ');
-        while not bet.isdigit() or int(bet) > players[i].money :
-            msg = 'Please enter a whole number: ';
-            if bet.isdigit() :
-                msg = 'You don\'t have enough money! Enter a different value: ';
-            bet = input(msg);
-        players[i].bet = int(bet);
+    for player in players[:-1] : # doesn't reach dealer
+        if not player.check_broke() :
+            bet = input(f'Bet for {player.name}: ');
+            while not bet.isdigit() or int(bet) > player.money :
+                msg = 'Please enter a whole number: ';
+                if bet.isdigit() :
+                    msg = 'You don\'t have enough money! Enter a different value: ';
+                bet = input(msg);
+            player.bet = int(bet);
     print(); 
     
 def view_hands(players) :
@@ -67,10 +68,11 @@ def view_hands(players) :
             print(f'{p.name}: [{p.hand[0][0]}, ?]', end='');
             print();
         else :
-            print(f'{p.name}: {p.hand}', end='');
-            if p.check_blackjack() :
-                print(f' ==> BLACKJACK!!! -- {p.name} wins ${p.bet}!');
-            else : print();
+            if not p.check_broke() :
+                print(f'{p.name}: {p.hand}', end='');
+                if p.check_blackjack() :
+                    print(f' ==> BLACKJACK!!! -- {p.name} wins ${p.bet}!');
+                else : print();
     print();
     
 def do_decision(player, dealer, hand_index=0) :
@@ -95,45 +97,47 @@ def cycle_decisions(players) :
             time.sleep(0.5);
             disp_str_slow('\nEnd-of-Round Earnings: \n', 0.05);
             if p.check_bust() :
-                for i in players[:-1] :
-                    sys.stdout.flush();
-                    time.sleep(0.5);
-                    print('    ', end='');
-                    for j in range(0,len(i.hand)) :
-                        if not i.check_bust(j) :
-                            print(f'{i.name} wins ${i.bet}! ', end='');
-                            i.money += i.bet;
-                        else :
-                            print(f'{i.name} loses ${i.bet}! ', end='');
-                            i.money -= i.bet;
-                    i.chips = chip.convert_to_chips(i.money, {});
-                    if i.check_broke() :
-                        print(f'Sorry {i.name}, but you\'re out of money and can no longer play in this game');
-                    else :
-                        print(f'Current Balance: ${i.money} (Chips: {i.chips})');
-            else :
-                for i in players[:-1] :
-                    sys.stdout.flush();
-                    time.sleep(0.5);
-                    print('    ', end='');
-                    for j in range(0,len(i.hand)) :
-                        if not i.check_bust(j) :
-                            if i.hand_value(j) > p.hand_value() :
+                if not i.check_broke() :
+                    for i in players[:-1] :
+                        sys.stdout.flush();
+                        time.sleep(0.5);
+                        print('    ', end='');
+                        for j in range(0,len(i.hand)) : # this is to loop through each hand for a player (player would have multiple hands after splitting)
+                            if not i.check_bust(j) :
                                 print(f'{i.name} wins ${i.bet}! ', end='');
                                 i.money += i.bet;
-                            elif i.hand_value(j) < p.hand_value() :
+                            else :
                                 print(f'{i.name} loses ${i.bet}! ', end='');
                                 i.money -= i.bet;
-                            else :
-                                print(f'{i.name} tied with the {p.name}! No change. ', end='');
+                        i.chips = chip.convert_to_chips(i.money, {});
+                        if i.check_broke() :
+                            print(f'Sorry {i.name}, but you\'re out of money and can no longer play in this game');
                         else :
-                            print(f'{i.name} loses ${i.bet}! ', end='');
-                            i.money -= i.bet;
-                    i.chips = chip.convert_to_chips(i.money, {});
-                    if i.check_broke() :
-                        print(f'Sorry {i.name}, but you\'re out of money and can no longer play in this game');
-                    else :
-                        print(f'Current Balance: ${i.money} (Chips: {i.chips})');
+                            print(f'Current Balance: ${i.money} (Chips: {i.chips})');
+            else :
+                for i in players[:-1] :
+                    if not i.check_broke() :
+                        sys.stdout.flush();
+                        time.sleep(0.5);
+                        print('    ', end='');
+                        for j in range(0,len(i.hand)) :
+                            if not i.check_bust(j) :
+                                if i.hand_value(j) > p.hand_value() :
+                                    print(f'{i.name} wins ${i.bet}! ', end='');
+                                    i.money += i.bet;
+                                elif i.hand_value(j) < p.hand_value() :
+                                    print(f'{i.name} loses ${i.bet}! ', end='');
+                                    i.money -= i.bet;
+                                else :
+                                    print(f'{i.name} tied with the {p.name}! No change. ', end='');
+                            else :
+                                print(f'{i.name} loses ${i.bet}! ', end='');
+                                i.money -= i.bet;
+                        i.chips = chip.convert_to_chips(i.money, {});
+                        if i.check_broke() :
+                            print(f'Sorry {i.name}, but you\'re out of money and can no longer play in this game');
+                        else :
+                            print(f'Current Balance: ${i.money} (Chips: {i.chips})');
             sys.stdout.flush();
             time.sleep(0.5);
         else :
