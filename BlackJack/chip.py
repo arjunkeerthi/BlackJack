@@ -8,8 +8,8 @@ class Chip() :
     def __str__(self) :
         return f'${self.value}';
 
-# Empty dictionary should be passed in. Also, NEVER use the third parameter     
-def convert_to_chips(amount, dict, i=len(Chip.values)-1) :
+# NEVER use second and third parameters     
+def convert_to_chips(amount, dict={}, i=len(Chip.values)-1) :
     if amount <= 0 :
         while i >= 0 :
             dict[f'${Chip.values[i]} chip'] = 0;

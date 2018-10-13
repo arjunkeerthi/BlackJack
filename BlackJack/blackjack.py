@@ -83,7 +83,6 @@ def do_decision(player, dealer, hand_index=0) :
         while choice.lower() not in choices_dict.keys() :
             choice = input('Please enter either \'s\', \'h\', \'p\', or \'d\', corresponding to your choice: ');
         valid_choice = choices_dict.get(choice)(player, dealer, hand_index);
-    #print();
     
 def cycle_decisions(players) :
     dealer = players[-1];
@@ -97,8 +96,8 @@ def cycle_decisions(players) :
             time.sleep(0.5);
             disp_str_slow('\nEnd-of-Round Earnings: \n', 0.05);
             if p.check_bust() :
-                if not i.check_broke() :
-                    for i in players[:-1] :
+                for i in players[:-1] :
+                    if not i.check_broke() :
                         sys.stdout.flush();
                         time.sleep(0.5);
                         print('    ', end='');
@@ -109,7 +108,7 @@ def cycle_decisions(players) :
                             else :
                                 print(f'{i.name} loses ${i.bet}! ', end='');
                                 i.money -= i.bet;
-                        i.chips = chip.convert_to_chips(i.money, {});
+                        i.chips = chip.convert_to_chips(i.money);
                         if i.check_broke() :
                             print(f'Sorry {i.name}, but you\'re out of money and can no longer play in this game');
                         else :
@@ -133,7 +132,7 @@ def cycle_decisions(players) :
                             else :
                                 print(f'{i.name} loses ${i.bet}! ', end='');
                                 i.money -= i.bet;
-                        i.chips = chip.convert_to_chips(i.money, {});
+                        i.chips = chip.convert_to_chips(i.money);
                         if i.check_broke() :
                             print(f'Sorry {i.name}, but you\'re out of money and can no longer play in this game');
                         else :
@@ -232,13 +231,20 @@ def check_status(player, hand_index=0) :
         print();
     return done;
     
-def play_again() :
+def play_again(players) :
     print();
-    choice = input('Do you all want to play another round? Enter \'y\' or \'n\': ').lower();
-    while choice != 'y' and choice != 'n' :
-        choice = input('Enter either \'y\' or \'n\': ');
-    print();
-    return choice;
+    all_broke = True;
+    for i in players :
+        if not i.check_broke() : all_broke = False;
+    if not all_broke :
+        choice = input('Do you all want to play another round? Enter \'y\' or \'n\': ').lower();
+        while choice != 'y' and choice != 'n' :
+            choice = input('Enter either \'y\' or \'n\': ');
+        print();
+        return choice;
+    else :
+        print();
+        return 'n';
     
 def reset(players) :
     dealer = players[-1];
@@ -281,7 +287,7 @@ def main() :
             deal(dealer, players);
         view_hands(players);    
         cycle_decisions(players);
-        replay_choice = play_again();  
+        replay_choice = play_again(players);  
         
     print('------------------------------------------------------------------------------------------------\n');
     disp_str_slow('FINAL PLAYER ACCOUNTS\n\n', 0.05);

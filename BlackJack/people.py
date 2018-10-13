@@ -8,7 +8,7 @@ class Player() :
         self.name = name;
         self.initial_money = money;
         self.money = money;
-        self.chips = chip.convert_to_chips(money, {});
+        self.chips = chip.convert_to_chips(money);
         self.hand = [[]];
         self.bet = 0;
         self.did_double_down = False;
