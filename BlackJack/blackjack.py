@@ -4,6 +4,16 @@ import people;
 import chip;
 import sys;
 import time;
+import pygame;
+
+#색 정의
+BlACK = (0,0,0)
+WHITE = (255,255,255)
+RED = (255,0,0)
+GREEN = (0,255,0)
+BLUE = (0,0,255)
+
+size = [600, 400]
 
 def display_instructions() :
     print('\nInstructions: The objective of this game is to obtain a hand of cards whose value is as close to 21 ');
@@ -273,6 +283,61 @@ def print_players(players) :
         print(player);
 
 def main() :
+    #initialize Screen
+    pygame.init()
+    screen = pygame.display.set_mode(size)
+    pygame.display.set_caption("BlackJack")
+
+    #Fill Background
+    screen.fill((0,70,50))
+    font = pygame.font.Font(None, 18)
+
+    #Loop until the user click the close button
+    done = False
+    clock = pygame.time.Clock()
+
+    while not done:
+        clock.tick(10)
+
+        #Main Event Loop
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
+
+
+        #딜러 섹션
+        pygame.draw.line(screen, WHITE, (150, 0), (450, 0), 3)
+        pygame.draw.line(screen, WHITE, (150, 0), (150, 100), 3)        
+        pygame.draw.line(screen, WHITE, (150, 100), (450, 100), 3)
+        pygame.draw.line(screen, WHITE, (450, 100), (450, 0), 3)
+
+        #플레이어 섹션
+        pygame.draw.line(screen, WHITE, (100, 300), (500, 300), 3)
+        pygame.draw.line(screen, WHITE, (100, 300), (100, 400), 3)        
+        pygame.draw.line(screen, WHITE, (100, 400), (500, 400), 3)
+        pygame.draw.line(screen, WHITE, (500, 300), (500, 400), 3)
+
+        #참가자 정보 출력 섹션
+        pygame.draw.rect(screen, WHITE, [480, 150, 120, 100], 3)
+
+        #입력 버튼 섹션
+        pygame.draw.rect(screen, WHITE, [0, 150, 120, 100], 3)
+
+
+        # Display some text    
+        text_dealer = font.render("Dealer", True, WHITE)
+        text_player = font.render("Player", True, WHITE)
+        text_player_info = font.render("Player Info", True, WHITE)
+
+        screen.blit(text_dealer, (150, 105))
+        screen.blit(text_player, (100, 285))
+        screen.blit(text_player_info, (30, 155))
+
+        pygame.display.flip()
+
+    pygame.quit()
+
+
     display_instructions();
     num_players = get_num_players();
     players = create_players(num_players);
